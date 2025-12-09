@@ -234,7 +234,7 @@ class FdLeaker {
             }
             ApplicationInfo applicationInfo = new ApplicationInfo();
             applicationInfo.packageName = "";
-            applicationInfo.writeToParcel(data, 0);
+            data.writeTypedObject(applicationInfo, 0);
             data.writeInt(0); // mIdealSize = null
             data.writeInt(0); // mLayoutId
             data.writeInt(0); // mViewId
@@ -566,7 +566,9 @@ class FdLeaker {
             }, 0);
             remoteViews.writeToParcel(data, 0);
             data.recycle();
-            sIntsInRemoteViewsBeforeAppInfo = probeOut[0] / 4;
+            // leading fields exclude the typed object sign
+            // per https://cs.android.com/android/platform/superproject/main/+/main:frameworks/base/core/java/android/os/Parcel.java;drc=61197364367c9e404c7da6900658f1b16c42d0da;l=2387
+            sIntsInRemoteViewsBeforeAppInfo = probeOut[0] / 4 - 1 ;
         } catch (NoSuchMethodException | IllegalAccessException |
                  InstantiationException | InvocationTargetException e) {
             throw new RuntimeException(e);
